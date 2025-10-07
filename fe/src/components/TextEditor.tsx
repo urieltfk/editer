@@ -8,7 +8,7 @@ import './TextEditor.css'
 
 export const TextEditor = () => {
   const { id: documentId } = useParams<{ id: string }>()
-  const { content, setContent } = useDocumentStore()
+  const { content, setContent, storageError } = useDocumentStore()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { isSaving } = useAutosave()
   const { isLoading, error } = useDocumentLoader(documentId || null)
@@ -27,8 +27,37 @@ export const TextEditor = () => {
         <Sidebar isOpen={sidebarOpen} onToggle={toggleSidebar} />
         <div className={`main-content ${sidebarOpen ? 'sidebar-open' : ''}`}>
           <div className="error-message">
-            <h2>Document not found</h2>
-            <p>The document you're looking for doesn't exist or has been deleted.</p>
+            <h2>Error Loading Document</h2>
+            <p>{error}</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              style={{ marginTop: '10px', padding: '8px 16px' }}
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (storageError) {
+    return (
+      <div className="text-editor-container">
+        <Sidebar isOpen={sidebarOpen} onToggle={toggleSidebar} />
+        <div className={`main-content ${sidebarOpen ? 'sidebar-open' : ''}`}>
+          <div className="error-message">
+            <h2>Storage Error</h2>
+            <p>{storageError}</p>
+            <p style={{ fontSize: '14px', color: '#666', marginTop: '10px' }}>
+              Your content will be saved in memory but may be lost when you refresh the page.
+            </p>
+            <button 
+              onClick={() => window.location.reload()} 
+              style={{ marginTop: '10px', padding: '8px 16px' }}
+            >
+              Continue Anyway
+            </button>
           </div>
         </div>
       </div>

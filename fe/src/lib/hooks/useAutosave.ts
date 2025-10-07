@@ -37,16 +37,64 @@ export const useAutosave = () => {
 
       setLastSavedContent(contentToSave)
       setLastSavedAt(new Date())
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to save document:', error)
-      // TODO: Show user-friendly error message
-      alert('Failed to save document. Please try again.')
+      
+      let errorMessage = 'Failed to save document. Please try again.'
+      
+      if (error.response) {
+        // Server responded with error status
+        const status = error.response.status
+        const statusText = error.response.statusText
+        
+        if (status === 404) {
+          errorMessage = 'Document not found. It may have been deleted.'
+        } else if (status === 400) {
+          errorMessage = 'Invalid document data. Please check your content.'
+        } else if (status === 500) {
+          errorMessage = 'Server error. Please try again later.'
+        } else {
+          errorMessage = `Server error (${status}): ${statusText}`
+        }
+      } else if (error.request) {
+        // Network error
+        errorMessage = 'Network error. Please check your connection and try again.'
+      } else if (error.code === 'ECONNABORTED') {
+        errorMessage = 'Request timeout. Please try again.'
+      } else {
+        errorMessage = `Unexpected error: ${error.message || 'Unknown error'}`
+      }
+      
+      alert(errorMessage)
     } finally {
       setIsSaving(false)
     }
   }
 
+  // Manual save function with debouncing
+  const manualSave = async () => {
+    if (content === lastSavedContent || isSaving) {
+      return
+    }
+
+    // Clear existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+    }
+
+    // Set new timeout for debounced save
+    timeoutRef.current = setTimeout(async () => {
+      await saveDocument(content)
+    }, 700)
+  }
+
+  // Auto save for existing documents
   useEffect(() => {
+    // Only auto-save if we have an existing document ID
+    if (!documentId) {
+      return
+    }
+
     // Clear existing timeout
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current)
@@ -68,10 +116,11 @@ export const useAutosave = () => {
         clearTimeout(timeoutRef.current)
       }
     }
-  }, [content, lastSavedContent, isSaving, documentId])
+  }, [content, lastSavedContent, documentId])
 
   return {
     isSaving,
-    lastSavedAt: useDocumentStore.getState().lastSavedAt
+    lastSavedAt: useDocumentStore.getState().lastSavedAt,
+    manualSave
   }
 }

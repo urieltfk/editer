@@ -25,11 +25,29 @@ export const useDocumentLoader = (documentId: string | null) => {
         setLastSavedAt(new Date(response.updated_at))
       } catch (error: any) {
         console.error('Failed to load document:', error)
-        if (error.response?.status === 404) {
-          setError('Document not found')
+        
+        let errorMessage = 'Failed to load document'
+        
+        if (error.response) {
+          const status = error.response.status
+          if (status === 404) {
+            errorMessage = 'Document not found. It may have been deleted or the link is incorrect.'
+          } else if (status === 400) {
+            errorMessage = 'Invalid document ID. Please check the URL.'
+          } else if (status === 500) {
+            errorMessage = 'Server error while loading document. Please try again later.'
+          } else {
+            errorMessage = `Server error (${status}): ${error.response.statusText}`
+          }
+        } else if (error.request) {
+          errorMessage = 'Network error. Please check your connection and try again.'
+        } else if (error.code === 'ECONNABORTED') {
+          errorMessage = 'Request timeout. Please try again.'
         } else {
-          setError('Failed to load document')
+          errorMessage = `Unexpected error: ${error.message || 'Unknown error'}`
         }
+        
+        setError(errorMessage)
         // Reset to local content on error
         reset()
       } finally {

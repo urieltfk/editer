@@ -38,9 +38,35 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
         await navigator.clipboard.writeText(url)
         alert('Document created and link copied to clipboard!')
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to share document:', error)
-      alert('Failed to share document. Please try again.')
+      
+      let errorMessage = 'Failed to share document. Please try again.'
+      
+      if (error.response) {
+        const status = error.response.status
+        const statusText = error.response.statusText
+        
+        if (status === 404) {
+          errorMessage = 'Document not found. It may have been deleted.'
+        } else if (status === 400) {
+          errorMessage = 'Invalid document data. Please check your content.'
+        } else if (status === 500) {
+          errorMessage = 'Server error. Please try again later.'
+        } else {
+          errorMessage = `Server error (${status}): ${statusText}`
+        }
+      } else if (error.request) {
+        errorMessage = 'Network error. Please check your connection and try again.'
+      } else if (error.code === 'ECONNABORTED') {
+        errorMessage = 'Request timeout. Please try again.'
+      } else if (error.name === 'NotAllowedError') {
+        errorMessage = 'Clipboard access denied. Please copy the link manually.'
+      } else {
+        errorMessage = `Unexpected error: ${error.message || 'Unknown error'}`
+      }
+      
+      alert(errorMessage)
     } finally {
       setIsSharing(false)
     }

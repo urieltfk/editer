@@ -22,19 +22,19 @@ class DocumentApi {
   private baseURL = API_BASE_URL
 
   async getDocument(shareId: string): Promise<DocumentResponse> {
-    const response = await axios.get(`${this.baseURL}/documents/${shareId}`)
+    const response = await axios.get(`${this.baseURL}/api/v1/documents/${shareId}`)
     return response.data
   }
 
   async createDocument(content: string): Promise<DocumentResponse> {
-    const response = await axios.post(`${this.baseURL}/documents`, {
+    const response = await axios.post(`${this.baseURL}/api/v1/documents`, {
       content
     })
     return response.data
   }
 
   async updateDocument(shareId: string, content: string): Promise<DocumentResponse> {
-    const response = await axios.put(`${this.baseURL}/documents/${shareId}`, {
+    const response = await axios.put(`${this.baseURL}/api/v1/documents/${shareId}`, {
       content
     })
     return response.data
