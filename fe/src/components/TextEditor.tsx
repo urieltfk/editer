@@ -1,4 +1,4 @@
-import { useState, ChangeEvent } from 'react'
+import { useState, ChangeEvent, KeyboardEvent, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
 import { useDocumentStore } from '../lib/store/documentStore'
@@ -12,9 +12,32 @@ export const TextEditor = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { isSaving } = useAutosave()
   const { isLoading, error } = useDocumentLoader(documentId || null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const handleTextChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     setContent(event.target.value)
+  }
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === 'Tab') {
+      event.preventDefault()
+      
+      const textarea = textareaRef.current
+      if (!textarea) return
+      
+      const start = textarea.selectionStart
+      const end = textarea.selectionEnd
+      const spaces = '  ' // 2 spaces for tab
+      
+      const newContent = content.slice(0, start) + spaces + content.slice(end)
+      setContent(newContent)
+      
+      // Update cursor position after the inserted spaces
+      setTimeout(() => {
+        const newCursorPos = start + spaces.length
+        textarea.setSelectionRange(newCursorPos, newCursorPos)
+      }, 0)
+    }
   }
 
   const toggleSidebar = () => {
@@ -74,8 +97,10 @@ export const TextEditor = () => {
         
         <div className="text-editor-content">
           <textarea
+            ref={textareaRef}
             value={content}
             onChange={handleTextChange}
+            onKeyDown={handleKeyDown}
             placeholder={isLoading ? "Loading document..." : "Start typing here..."}
             className="text-editor-textarea"
             autoFocus
