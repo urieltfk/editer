@@ -1,10 +1,10 @@
-import { useState } from 'react'
+import { useState, ChangeEvent } from 'react'
 import './TextEditor.css'
 
 export const TextEditor = () => {
   const [content, setContent] = useState('')
 
-  const handleTextChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleTextChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     setContent(event.target.value)
   }
 
