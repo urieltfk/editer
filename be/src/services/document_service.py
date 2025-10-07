@@ -1,44 +1,48 @@
-from typing import Optional
-from datetime import datetime, UTC
-import logging
+"""
+Document service for handling document operations.
+"""
 
+import logging
+from typing import Optional
 from ..models.document import Document, DocumentCreate, DocumentUpdate, DocumentResponse
-from .hrid_service import hrid_service
+from ..services.hrid_service import generate_hrid
 
 logger = logging.getLogger(__name__)
 
 
 class DocumentService:
-    """Service class for document operations using Beanie ODM."""
+    """Service for document operations."""
     
     async def create_document(self, document_data: DocumentCreate) -> DocumentResponse:
-        """Create a new document with auto-generated share_id using HRID service."""
+        """Create a new document."""
         try:
-            share_id = hrid_service.generate_id()
-            logger.debug(f"Generated share_id: {share_id}")
+            # Generate unique share_id
+            share_id = generate_hrid()
             
+            # Create document
             document = Document(
                 share_id=share_id,
                 content=document_data.content
             )
             
-            saved_document = await document.save()
-            logger.info(f"Document created with share_id: {share_id}")
+            # Save to database
+            await document.insert()
             
+            # Return response
             return DocumentResponse(
-                id=str(saved_document.id),
-                share_id=saved_document.share_id,
-                content=saved_document.content,
-                created_at=saved_document.created_at,
-                updated_at=saved_document.updated_at
+                id=str(document.id),
+                share_id=document.share_id,
+                content=document.content,
+                created_at=document.created_at,
+                updated_at=document.updated_at
             )
             
         except Exception as e:
-            logger.error(f"Unexpected error creating document: {e}")
-            raise RuntimeError("Failed to create document")
+            logger.error(f"Error creating document: {e}")
+            raise RuntimeError(f"Failed to create document: {e}")
     
     async def get_document(self, share_id: str) -> Optional[DocumentResponse]:
-        """Retrieve a document by share_id."""
+        """Get a document by share_id."""
         try:
             document = await Document.find_one(Document.share_id == share_id)
             
@@ -54,10 +58,10 @@ class DocumentService:
             )
             
         except Exception as e:
-            logger.error(f"Unexpected error retrieving document: {e}")
-            raise RuntimeError("Failed to retrieve document")
+            logger.error(f"Error retrieving document: {e}")
+            raise RuntimeError(f"Failed to retrieve document: {e}")
     
-    async def update_document(self, share_id: str, update_data: DocumentUpdate) -> Optional[DocumentResponse]:
+    async def update_document(self, share_id: str, document_data: DocumentUpdate) -> Optional[DocumentResponse]:
         """Update a document by share_id."""
         try:
             document = await Document.find_one(Document.share_id == share_id)
@@ -65,10 +69,12 @@ class DocumentService:
             if not document:
                 return None
             
-            if update_data.content is not None:
-                document.content = update_data.content
-            
+            # Update content and timestamp
+            from datetime import datetime, UTC
+            document.content = document_data.content
             document.updated_at = datetime.now(UTC)
+            
+            # Save changes
             await document.save()
             
             return DocumentResponse(
@@ -80,8 +86,8 @@ class DocumentService:
             )
             
         except Exception as e:
-            logger.error(f"Unexpected error updating document: {e}")
-            raise RuntimeError("Failed to update document")
+            logger.error(f"Error updating document: {e}")
+            raise RuntimeError(f"Failed to update document: {e}")
 
 
 # Global service instance
