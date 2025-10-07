@@ -4,6 +4,8 @@
   width: 100%;
   position: relative;
   box-sizing: border-box;
+  background-color: var(--bg-primary);
+  transition: background-color 0.3s ease;
 }
 
 .main-content {
@@ -38,8 +40,9 @@
   resize: none;
   outline: none;
   background-color: transparent;
-  color: #333;
+  color: var(--text-secondary);
   box-sizing: border-box;
+  transition: color 0.3s ease;
 }
 
 .text-editor-textarea:focus {
@@ -47,8 +50,9 @@
 }
 
 .text-editor-textarea::placeholder {
-  color: #999;
+  color: var(--text-quaternary);
   font-style: italic;
+  transition: color 0.3s ease;
 }
 
 .page-edge-line {
@@ -60,11 +64,12 @@
   background: linear-gradient(
     to bottom,
     transparent 0%,
-    #e1e5e9 10%,
-    #e1e5e9 90%,
+    var(--border-primary) 10%,
+    var(--border-primary) 90%,
     transparent 100%
   );
   z-index: 1;
+  transition: background 0.3s ease;
 }
 
 /* Saving indicator */
@@ -72,8 +77,8 @@
   position: fixed;
   bottom: 20px;
   left: 20px;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
+  background: var(--shadow-primary);
+  color: var(--text-primary);
   padding: 8px 12px;
   border-radius: 4px;
   font-size: 12px;
@@ -98,42 +103,15 @@
 }
 
 .error-message h2 {
-  color: #e74c3c;
+  color: var(--accent-danger);
   margin-bottom: 16px;
   font-size: 24px;
 }
 
 .error-message p {
-  color: #666;
+  color: var(--text-tertiary);
   font-size: 16px;
   line-height: 1.5;
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .text-editor-textarea {
-    color: #ffffff;
-  }
-  
-  .text-editor-textarea::placeholder {
-    color: #666;
-  }
-  
-  .page-edge-line {
-    background: linear-gradient(
-      to bottom,
-      transparent 0%,
-      #404040 10%,
-      #404040 90%,
-      transparent 100%
-    );
-  }
-  
-  .error-message h2 {
-    color: #ff6b6b;
-  }
-  
-  .error-message p {
-    color: #ccc;
-  }
-}
+/* Theme support now handled by CSS variables in index.css */

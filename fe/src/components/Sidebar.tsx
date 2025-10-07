@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useDocumentStore } from '../lib/store/documentStore'
+import { useThemeStore } from '../lib/store/themeStore'
 import { documentApi } from '../lib/api/documentApi'
 import './Sidebar.css'
 
@@ -10,6 +11,7 @@ interface SidebarProps {
 
 export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
   const { content, documentId, lastSavedAt } = useDocumentStore()
+  const { isDarkMode, toggleTheme } = useThemeStore()
   const [isSharing, setIsSharing] = useState(false)
 
   const handleShare = async () => {
@@ -106,8 +108,14 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
           </div>
           
           <div className="sidebar-section">
-            <h3>Night Mode</h3>
-            <div className="placeholder">Night mode toggle placeholder</div>
+            <h3>Theme</h3>
+            <button 
+              className="theme-toggle-button"
+              onClick={toggleTheme}
+              aria-label={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}
+            >
+              {isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode'}
+            </button>
           </div>
           
           <div className="sidebar-section">

@@ -4,22 +4,80 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  
+  /* Light theme variables */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-tertiary: #e9ecef;
+  --bg-quaternary: #f0f0f0;
+  
+  --text-primary: #213547;
+  --text-secondary: #333333;
+  --text-tertiary: #666666;
+  --text-quaternary: #999999;
+  --text-muted: #6c757d;
+  
+  --border-primary: #e1e5e9;
+  --border-secondary: #dee2e6;
+  --border-tertiary: #adb5bd;
+  --border-accent: #30363d;
+  
+  --accent-primary: #646cff;
+  --accent-secondary: #535bf2;
+  --accent-success: #007bff;
+  --accent-success-hover: #0056b3;
+  --accent-danger: #e74c3c;
+  
+  --shadow-primary: rgba(0, 0, 0, 0.8);
+  --shadow-secondary: rgba(0, 0, 0, 0.1);
+  
+  /* Apply theme variables */
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dark theme variables */
+.dark {
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-tertiary: #21262d;
+  --bg-quaternary: #30363d;
+  
+  --text-primary: #f0f6fc;
+  --text-secondary: #f0f6fc;
+  --text-tertiary: #7d8590;
+  --text-quaternary: #7d8590;
+  --text-muted: #7d8590;
+  
+  --border-primary: #30363d;
+  --border-secondary: #30363d;
+  --border-tertiary: #30363d;
+  --border-accent: #58a6ff;
+  
+  --accent-primary: #58a6ff;
+  --accent-secondary: #79c0ff;
+  --accent-success: #238636;
+  --accent-success-hover: #2ea043;
+  --accent-danger: #f85149;
+  
+  --shadow-primary: rgba(240, 246, 252, 0.9);
+  --shadow-secondary: rgba(240, 246, 252, 0.1);
 }
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: var(--accent-primary);
   text-decoration: inherit;
+  transition: color 0.3s ease;
 }
 a:hover {
-  color: #535bf2;
+  color: var(--accent-secondary);
 }
 
 body {
@@ -35,32 +93,23 @@ h1 {
 
 button {
   border-radius: 8px;
-  border: 1px solid transparent;
+  border: 1px solid var(--border-secondary);
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: var(--bg-quaternary);
+  color: var(--text-primary);
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: all 0.3s ease;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: var(--accent-primary);
+  background-color: var(--bg-tertiary);
 }
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-}
+/* Legacy media query support - now handled by CSS variables */
