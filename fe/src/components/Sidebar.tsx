@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useDocumentStore } from '../lib/store/documentStore'
 import { useThemeStore } from '../lib/store/themeStore'
 import { documentApi } from '../lib/api/documentApi'
@@ -11,8 +11,13 @@ interface SidebarProps {
 
 export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
   const { content, documentId, lastSavedAt } = useDocumentStore()
-  const { isDarkMode, toggleTheme } = useThemeStore()
+  const { isDarkMode, fontSize, toggleTheme, setFontSize } = useThemeStore()
   const [isSharing, setIsSharing] = useState(false)
+  const [fontSizeInput, setFontSizeInput] = useState(fontSize.toString())
+
+  useEffect(() => {
+    setFontSizeInput(fontSize.toString())
+  }, [fontSize])
 
   const handleShare = async () => {
     if (!content.trim()) {
@@ -74,6 +79,14 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
     }
   }
 
+  const handleFontSizeChange = (value: string) => {
+    setFontSizeInput(value)
+    const numValue = parseInt(value, 10)
+    if (!isNaN(numValue) && numValue >= 8 && numValue <= 32) {
+      setFontSize(numValue)
+    }
+  }
+
   const formatLastSaved = (date: Date | null) => {
     if (!date) return 'Never'
     const now = new Date()
@@ -104,7 +117,19 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
         <div className="sidebar-content">
           <div className="sidebar-section">
             <h3>Settings</h3>
-            <div className="placeholder">Settings placeholder</div>
+            <div className="font-size-control">
+              <label htmlFor="font-size-input">Font Size (8-32px)</label>
+              <input
+                id="font-size-input"
+                type="number"
+                min="8"
+                max="32"
+                value={fontSizeInput}
+                onChange={(e) => handleFontSizeChange(e.target.value)}
+                className="font-size-input"
+                placeholder="14"
+              />
+            </div>
           </div>
           
           <div className="sidebar-section">

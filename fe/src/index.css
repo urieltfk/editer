@@ -9,6 +9,9 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   
+  /* Font size variable */
+  --font-size: 14px;
+  
   /* Light theme variables */
   --bg-primary: #ffffff;
   --bg-secondary: #f8f9fa;

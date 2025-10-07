@@ -3,7 +3,7 @@ import { TextEditor } from '@components/TextEditor'
 import { useThemeStore } from '../lib/store/themeStore'
 
 function App() {
-  const { isDarkMode } = useThemeStore()
+  const { isDarkMode, fontSize } = useThemeStore()
 
   useEffect(() => {
     const root = document.documentElement
@@ -13,6 +13,11 @@ function App() {
       root.classList.remove('dark')
     }
   }, [isDarkMode])
+
+  useEffect(() => {
+    const root = document.documentElement
+    root.style.setProperty('--font-size', `${fontSize}px`)
+  }, [fontSize])
 
   return <TextEditor />
 }

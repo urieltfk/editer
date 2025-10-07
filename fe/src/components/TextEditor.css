@@ -35,14 +35,14 @@
   border: none;
   padding: 0;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 14px;
+  font-size: var(--font-size);
   line-height: 1.6;
   resize: none;
   outline: none;
   background-color: transparent;
   color: var(--text-secondary);
   box-sizing: border-box;
-  transition: color 0.3s ease;
+  transition: color 0.3s ease, font-size 0.3s ease;
 }
 
 .text-editor-textarea:focus {
