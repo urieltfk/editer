@@ -3,5 +3,6 @@ from .document import (
     Document,
     DocumentCreate,
     DocumentUpdate,
-    DocumentResponse
+    DocumentResponse,
+    DocumentBase
 )

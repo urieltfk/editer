@@ -32,6 +32,9 @@ class Settings(BaseSettings):
     max_title_length: int = 200
     max_content_length: int = 10 * 1024 * 1024  # 10MB
     
+    # HRID Configuration
+    hrid_seed: str = "editer-app-seed-2024"
+    
     # Rate Limiting
     rate_limit_requests: int = 100
     rate_limit_window: int = 60  # seconds

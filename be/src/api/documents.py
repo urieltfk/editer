@@ -1,35 +1,97 @@
-from fastapi import APIRouter
-from ..models.document import Document
+from fastapi import APIRouter, HTTPException, status
+import logging
+
+from ..models.document import DocumentCreate, DocumentUpdate, DocumentResponse
+from ..services.document_service import document_service
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
-# Document endpoints (placeholder for future implementation)
-@router.post("/documents", response_model=Document)
-async def create_document(document: Document):
-    # TODO: Implement document creation with MongoDB
-    return {
-        "id": "placeholder-id",
-        "content": document.content,
-        "created_at": "2024-01-01T00:00:00Z",
-        "updated_at": "2024-01-01T00:00:00Z"
-    }
 
-@router.get("/documents/{document_id}")
-async def get_document(document_id: str):
-    # TODO: Implement document retrieval from MongoDB
-    return {
-        "id": document_id,
-        "content": "This is a placeholder document",
-        "created_at": "2024-01-01T00:00:00Z",
-        "updated_at": "2024-01-01T00:00:00Z"
-    }
+@router.post("/documents", response_model=DocumentResponse, status_code=status.HTTP_201_CREATED)
+async def create_document(document: DocumentCreate):
+    """Create a new document with auto-generated share_id."""
+    try:
+        result = await document_service.create_document(document)
+        logger.info(f"Document created with share_id: {result.share_id}")
+        return result
+    except ValueError as e:
+        logger.warning(f"Validation error creating document: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except RuntimeError as e:
+        logger.error(f"Service error creating document: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to create document"
+        )
+    except Exception as e:
+        logger.error(f"Unexpected error creating document: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error"
+        )
 
-@router.put("/documents/{document_id}", response_model=Document)
-async def update_document(document_id: str, document: Document):
-    # TODO: Implement document update with MongoDB
-    return {
-        "id": document_id,
-        "content": document.content or "Updated content",
-        "created_at": "2024-01-01T00:00:00Z",
-        "updated_at": "2024-01-01T00:00:00Z"
-    }
+
+@router.get("/documents/{share_id}", response_model=DocumentResponse)
+async def get_document(share_id: str):
+    """Retrieve a document by share_id."""
+    try:
+        result = await document_service.get_document(share_id)
+        if not result:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Document with share_id '{share_id}' not found"
+            )
+        logger.info(f"Document retrieved: {share_id}")
+        return result
+    except HTTPException:
+        raise
+    except RuntimeError as e:
+        logger.error(f"Service error retrieving document: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve document"
+        )
+    except Exception as e:
+        logger.error(f"Unexpected error retrieving document: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error"
+        )
+
+
+@router.put("/documents/{share_id}", response_model=DocumentResponse)
+async def update_document(share_id: str, document: DocumentUpdate):
+    """Update a document by share_id."""
+    try:
+        result = await document_service.update_document(share_id, document)
+        if not result:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Document with share_id '{share_id}' not found"
+            )
+        logger.info(f"Document updated: {share_id}")
+        return result
+    except HTTPException:
+        raise
+    except ValueError as e:
+        logger.warning(f"Validation error updating document: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except RuntimeError as e:
+        logger.error(f"Service error updating document: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to update document"
+        )
+    except Exception as e:
+        logger.error(f"Unexpected error updating document: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error"
+        )
