@@ -1,0 +1,25 @@
+# Development overrides for docker-compose.yml
+# This file is automatically loaded by docker-compose for development
+
+services:
+  backend:
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    environment:
+      - DEBUG=True
+      - LOG_LEVEL=DEBUG
+    volumes:
+      - ./be:/app
+      - /app/__pycache__
+
+  frontend:
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    volumes:
+      - ./fe:/app
+      - /app/node_modules
+      - /app/dist
+
+  mongodb:
+    ports:
+      - "27017:27017"

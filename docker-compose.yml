@@ -1,0 +1,54 @@
+services:
+  backend:
+    build:
+      context: ./be
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - DEBUG=True
+      - MONGODB_URL=mongodb://mongodb:27017
+      - DATABASE_NAME=editer
+      - ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173,http://frontend:3000
+    depends_on:
+      - mongodb
+    volumes:
+      - ./be:/app
+    networks:
+      - editer-network
+
+  frontend:
+    build:
+      context: ./fe
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+    volumes:
+      - ./fe:/app
+      - /app/node_modules
+    networks:
+      - editer-network
+
+  mongodb:
+    image: mongo:7.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=editer
+    networks:
+      - editer-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  editer-network:
+    driver: bridge
