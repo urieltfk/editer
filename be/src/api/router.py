@@ -1,10 +1,10 @@
 from fastapi import APIRouter
-from src.settings import settings
-from src.api.documents import router as documents_router
+from ..settings import settings
+from .documents import router as documents_router
 
 router = APIRouter()
 
-router.include_router(documents_router)
+router.include_router(documents_router, prefix="/api/v1", tags=["documents"])
 
 # Health check endpoint
 @router.get("/health")

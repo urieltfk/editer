@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from src.models.document import Document
+from ..models.document import Document
 
 router = APIRouter()
 
@@ -14,7 +14,7 @@ async def create_document(document: Document):
         "updated_at": "2024-01-01T00:00:00Z"
     }
 
-@router.get("/documents/{document_id}", response_model=Document)
+@router.get("/documents/{document_id}")
 async def get_document(document_id: str):
     # TODO: Implement document retrieval from MongoDB
     return {
