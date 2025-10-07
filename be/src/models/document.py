@@ -29,11 +29,9 @@ class DocumentUpdate(BaseModel):
     @field_validator('content')
     def validate_content(cls, v):
         if v is not None:
-            if not v.strip():
-                raise ValueError('Content cannot be empty')
             if len(v) > 1 * 1024 * 1024:  # 1MB limit
                 raise ValueError('Content exceeds maximum length')
-            return v.strip()
+            return v  # Don't strip, preserve whitespace
         return v
 
 
