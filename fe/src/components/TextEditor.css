@@ -67,6 +67,48 @@
   z-index: 1;
 }
 
+/* Saving indicator */
+.saving-indicator {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  z-index: 1000;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+/* Error message */
+.error-message {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  text-align: center;
+  padding: 40px;
+}
+
+.error-message h2 {
+  color: #e74c3c;
+  margin-bottom: 16px;
+  font-size: 24px;
+}
+
+.error-message p {
+  color: #666;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .text-editor-textarea {
@@ -85,5 +127,13 @@
       #404040 90%,
       transparent 100%
     );
+  }
+  
+  .error-message h2 {
+    color: #ff6b6b;
+  }
+  
+  .error-message p {
+    color: #ccc;
   }
 }

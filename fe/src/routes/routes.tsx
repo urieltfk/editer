@@ -10,6 +10,11 @@ export const Router: ReturnType<typeof createBrowserRouter> = createBrowserRoute
     errorElement: <ErrorPage/>
   },
   {
+    path: "/edit/:id",
+    element: <App/>,
+    errorElement: <ErrorPage/>
+  },
+  {
     path: "/about",
     element: <About />,
   }

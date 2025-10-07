@@ -78,6 +78,37 @@
   font-style: italic;
 }
 
+.share-button {
+  width: 100%;
+  padding: 10px 16px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.share-button:hover:not(:disabled) {
+  background: #0056b3;
+}
+
+.share-button:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+.last-saved {
+  padding: 8px 12px;
+  background: #e9ecef;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #495057;
+  font-weight: 500;
+}
+
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .sidebar-toggle {
@@ -108,5 +139,22 @@
   .placeholder {
     background: #2d2d2d;
     color: #999;
+  }
+  
+  .share-button {
+    background: #0d6efd;
+  }
+  
+  .share-button:hover:not(:disabled) {
+    background: #0b5ed7;
+  }
+  
+  .share-button:disabled {
+    background: #495057;
+  }
+  
+  .last-saved {
+    background: #2d2d2d;
+    color: #ccc;
   }
 }
