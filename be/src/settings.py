@@ -40,32 +40,12 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     log_format: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        case_sensitive = False
-        
-        # Environment variable mapping
-        fields = {
-            "api_title": {"env": "API_TITLE"},
-            "api_description": {"env": "API_DESCRIPTION"},
-            "api_version": {"env": "API_VERSION"},
-            "debug": {"env": "DEBUG"},
-            "host": {"env": "API_HOST"},
-            "port": {"env": "API_PORT"},
-            "mongodb_url": {"env": "MONGODB_URL"},
-            "database_name": {"env": "DATABASE_NAME"},
-            "allowed_origins": {"env": "ALLOWED_ORIGINS"},
-            "secret_key": {"env": "SECRET_KEY"},
-            "access_token_expire_minutes": {"env": "ACCESS_TOKEN_EXPIRE_MINUTES"},
-            "max_document_size": {"env": "MAX_DOCUMENT_SIZE"},
-            "max_title_length": {"env": "MAX_TITLE_LENGTH"},
-            "max_content_length": {"env": "MAX_CONTENT_LENGTH"},
-            "rate_limit_requests": {"env": "RATE_LIMIT_REQUESTS"},
-            "rate_limit_window": {"env": "RATE_LIMIT_WINDOW"},
-            "log_level": {"env": "LOG_LEVEL"},
-            "log_format": {"env": "LOG_FORMAT"}
-        }
+    model_config = {
+        "env_file": ".env",
+        "env_file_encoding": "utf-8",
+        "case_sensitive": False,
+        "extra": "ignore"
+    }
 
 
 # Create settings instance
