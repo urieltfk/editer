@@ -1,0 +1,74 @@
+.text-editor-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.text-editor-header {
+  margin-bottom: 20px;
+}
+
+.text-editor-header h1 {
+  margin: 0;
+  font-size: 2rem;
+  color: #333;
+}
+
+.text-editor-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.text-editor-textarea {
+  flex: 1;
+  width: 100%;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  padding: 20px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  resize: none;
+  outline: none;
+  background-color: #ffffff;
+  color: #333;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+}
+
+.text-editor-textarea:focus {
+  border-color: #646cff;
+  box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.1);
+}
+
+.text-editor-textarea::placeholder {
+  color: #999;
+  font-style: italic;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .text-editor-header h1 {
+    color: #ffffff;
+  }
+  
+  .text-editor-textarea {
+    background-color: #1a1a1a;
+    color: #ffffff;
+    border-color: #404040;
+  }
+  
+  .text-editor-textarea:focus {
+    border-color: #646cff;
+  }
+  
+  .text-editor-textarea::placeholder {
+    color: #666;
+  }
+}
