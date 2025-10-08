@@ -23,10 +23,11 @@
 .text-editor-content {
   flex: 1;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   margin-left: 30px;
   padding: 20px;
   box-sizing: border-box;
+  position: relative;
 }
 
 .text-editor-textarea {
@@ -49,28 +50,16 @@
   outline: none;
 }
 
+.text-editor-textarea.with-line-numbers {
+  margin-left: 30px;
+}
+
 .text-editor-textarea::placeholder {
   color: var(--text-quaternary);
   font-style: italic;
   transition: color 0.3s ease;
 }
 
-.page-edge-line {
-  position: absolute;
-  left: 30px;
-  top: 20px;
-  width: 1px;
-  height: calc(100vh - 40px);
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    var(--border-primary) 10%,
-    var(--border-primary) 90%,
-    transparent 100%
-  );
-  z-index: 1;
-  transition: background 0.3s ease;
-}
 
 /* Saving indicator */
 .saving-indicator {
@@ -112,6 +101,38 @@
   color: var(--text-tertiary);
   font-size: 16px;
   line-height: 1.5;
+}
+
+.line-numbers {
+  position: absolute;
+  left: 0px;
+  top: 20px;
+  width: 20px;
+  height: calc(100vh - 40px);
+  overflow: hidden;
+  background: var(--bg-primary);
+  border-right: 1px solid var(--border-primary);
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: var(--font-size);
+  line-height: 1.6;
+  color: var(--text-quaternary);
+  user-select: none;
+  z-index: 2;
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+.line-numbers.without-numbers {
+  color: transparent;
+}
+
+.line-number {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 8px;
+  height: 1.6em;
+  font-size: inherit;
+  line-height: inherit;
 }
 
 /* Theme support now handled by CSS variables in index.css */

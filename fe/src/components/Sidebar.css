@@ -170,4 +170,35 @@
   border-color: var(--border-tertiary);
 }
 
+.line-numbers-control {
+  margin-top: 16px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
+}
+
+.checkbox-label:hover {
+  color: var(--text-secondary);
+}
+
+.line-numbers-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent-primary);
+  cursor: pointer;
+}
+
+.checkbox-text {
+  font-size: 14px;
+  font-weight: 500;
+  user-select: none;
+}
+
 /* Theme support now handled by CSS variables in index.css */

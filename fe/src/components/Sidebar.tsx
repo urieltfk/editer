@@ -11,7 +11,7 @@ interface SidebarProps {
 
 export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
   const { content, documentId, lastSavedAt } = useDocumentStore()
-  const { isDarkMode, fontSize, toggleTheme, setFontSize } = useThemeStore()
+  const { isDarkMode, fontSize, showLineNumbers, toggleTheme, setFontSize, toggleLineNumbers } = useThemeStore()
   const [isSharing, setIsSharing] = useState(false)
   const [fontSizeInput, setFontSizeInput] = useState(fontSize.toString())
 
@@ -129,6 +129,17 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
                 className="font-size-input"
                 placeholder="14"
               />
+            </div>
+            <div className="line-numbers-control">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={showLineNumbers}
+                  onChange={toggleLineNumbers}
+                  className="line-numbers-checkbox"
+                />
+                <span className="checkbox-text">Show Line Numbers</span>
+              </label>
             </div>
           </div>
           

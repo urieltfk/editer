@@ -1,7 +1,8 @@
-import { useState, ChangeEvent, KeyboardEvent, useRef } from 'react'
+import { useState, ChangeEvent, KeyboardEvent, useRef, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
 import { useDocumentStore } from '../lib/store/documentStore'
+import { useThemeStore } from '../lib/store/themeStore'
 import { useAutosave } from '../lib/hooks/useAutosave'
 import { useDocumentLoader } from '../lib/hooks/useDocumentLoader'
 import './TextEditor.css'
@@ -9,10 +10,12 @@ import './TextEditor.css'
 export const TextEditor = () => {
   const { id: documentId } = useParams<{ id: string }>()
   const { content, setContent, storageError } = useDocumentStore()
+  const { showLineNumbers } = useThemeStore()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { isSaving } = useAutosave()
   const { isLoading, error } = useDocumentLoader(documentId || null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const lineNumbersRef = useRef<HTMLDivElement>(null)
 
   const handleTextChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     setContent(event.target.value)
@@ -43,6 +46,27 @@ export const TextEditor = () => {
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen)
   }
+
+  // Generate line numbers
+  const generateLineNumbers = () => {
+    const lines = content.split('\n')
+    return lines.map((_, index) => index + 1)
+  }
+
+  // Sync line numbers scroll with textarea scroll
+  useEffect(() => {
+    const textarea = textareaRef.current
+    const lineNumbers = lineNumbersRef.current
+    
+    if (!textarea || !lineNumbers) return
+
+    const syncScroll = () => {
+      lineNumbers.scrollTop = textarea.scrollTop
+    }
+
+    textarea.addEventListener('scroll', syncScroll)
+    return () => textarea.removeEventListener('scroll', syncScroll)
+  }, [])
 
   if (error) {
     return (
@@ -92,17 +116,21 @@ export const TextEditor = () => {
       <Sidebar isOpen={sidebarOpen} onToggle={toggleSidebar} />
       
       <div className={`main-content ${sidebarOpen ? 'sidebar-open' : ''}`}>
-        {/* Gray vertical line separator */}
-        <div className="page-edge-line"></div>
-        
         <div className="text-editor-content">
+          <div className={`line-numbers ${showLineNumbers ? 'with-numbers' : 'without-numbers'}`} ref={lineNumbersRef}>
+            {showLineNumbers && generateLineNumbers().map((lineNumber) => (
+              <div key={lineNumber} className="line-number">
+                {lineNumber}
+              </div>
+            ))}
+          </div>
           <textarea
             ref={textareaRef}
             value={content}
             onChange={handleTextChange}
             onKeyDown={handleKeyDown}
             placeholder={isLoading ? "Loading document..." : "Start typing here..."}
-            className="text-editor-textarea"
+            className={`text-editor-textarea ${showLineNumbers ? 'with-line-numbers' : ''}`}
             autoFocus
             disabled={isLoading}
           />
