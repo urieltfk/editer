@@ -50,8 +50,8 @@
   outline: none;
 }
 
-.text-editor-textarea.with-line-numbers {
-  margin-left: 30px;
+.text-editor-textarea {
+  margin-left: 20px;
 }
 
 .text-editor-textarea::placeholder {
