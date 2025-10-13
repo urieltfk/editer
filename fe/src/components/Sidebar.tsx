@@ -14,6 +14,7 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
   const { isDarkMode, fontSize, showLineNumbers, toggleTheme, setFontSize, toggleLineNumbers } = useThemeStore()
   const [isSharing, setIsSharing] = useState(false)
   const [fontSizeInput, setFontSizeInput] = useState(fontSize.toString())
+  const [isCopied, setIsCopied] = useState(false)
 
   useEffect(() => {
     setFontSizeInput(fontSize.toString())
@@ -87,6 +88,23 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
     }
   }
 
+  const handleCopy = async () => {
+    if (!content.trim()) {
+      return
+    }
+
+    try {
+      await navigator.clipboard.writeText(content)
+      setIsCopied(true)
+      setTimeout(() => {
+        setIsCopied(false)
+      }, 2000)
+    } catch (error) {
+      console.error('Failed to copy content:', error)
+      alert('Failed to copy content to clipboard')
+    }
+  }
+
   const formatLastSaved = (date: Date | null) => {
     if (!date) return 'Never'
     const now = new Date()
@@ -110,6 +128,18 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
         aria-label="Toggle sidebar"
       >
         <span className="arrow">›</span>
+      </button>
+
+      {/* Copy Button */}
+      <button 
+        className={`copy-button ${isOpen ? 'open' : ''} ${!content.trim() ? 'disabled' : ''}`}
+        onClick={handleCopy}
+        disabled={!content.trim()}
+        aria-label="Copy content to clipboard"
+      >
+        <span className="copy-icon">
+          {isCopied ? '✓' : <img src="/clipboard.svg" alt="Copy" className="clipboard-icon" />}
+        </span>
       </button>
 
       {/* Sidebar Content */}
