@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { createVersionedStorage, documentMigrations } from '../utils/storageVersion'
 
 interface DocumentState {
   content: string
@@ -31,6 +32,14 @@ const createSafeStorage = () => {
   }
 }
 
+// Create versioned storage for document store
+const createVersionedDocumentStorage = () => {
+  const baseStorage = createSafeStorage()
+  if (!baseStorage) return undefined
+  
+  return createVersionedStorage('editer-document-storage', documentMigrations)
+}
+
 export const useDocumentStore = create<DocumentState>()(
   persist(
     (set) => ({
@@ -59,7 +68,7 @@ export const useDocumentStore = create<DocumentState>()(
     }),
     {
       name: 'editer-document-storage',
-      storage: createSafeStorage(),
+      storage: createVersionedDocumentStorage(),
       partialize: (state) => ({
         content: state.content,
         lastSavedContent: state.lastSavedContent,
@@ -69,7 +78,7 @@ export const useDocumentStore = create<DocumentState>()(
       onRehydrateStorage: () => (state, error) => {
         if (error) {
           console.error('Failed to rehydrate storage:', error)
-          state?.setStorageError(`Storage error: ${error.message}`)
+          state?.setStorageError(`Storage error: ${error instanceof Error ? error.message : 'Unknown error'}`)
         }
       }
     }

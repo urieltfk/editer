@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { createVersionedStorage, themeMigrations } from '../utils/storageVersion'
 
 interface ThemeState {
   isDarkMode: boolean
@@ -10,6 +11,11 @@ interface ThemeState {
   setFontSize: (fontSize: number) => void
   setShowLineNumbers: (show: boolean) => void
   toggleLineNumbers: () => void
+}
+
+// Create versioned storage for theme store
+const createVersionedThemeStorage = () => {
+  return createVersionedStorage('theme-storage', themeMigrations)
 }
 
 export const useThemeStore = create<ThemeState>()(
@@ -26,6 +32,12 @@ export const useThemeStore = create<ThemeState>()(
     }),
     {
       name: 'theme-storage',
+      storage: createVersionedThemeStorage(),
+      partialize: (state) => ({
+        isDarkMode: state.isDarkMode,
+        fontSize: state.fontSize,
+        showLineNumbers: state.showLineNumbers
+      })
     }
   )
 )
