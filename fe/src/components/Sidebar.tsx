@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useDocumentStore } from '../lib/store/documentStore'
 import { useThemeStore } from '../lib/store/themeStore'
 import { documentApi } from '../lib/api/documentApi'
+import { useToast } from '../lib/hooks/useToast'
 import './Sidebar.css'
 
 interface SidebarProps {
@@ -14,6 +15,7 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
   const navigate = useNavigate()
   const { content, documentId, lastSavedAt, setContent, setDocumentId } = useDocumentStore()
   const { isDarkMode, fontSize, showLineNumbers, toggleTheme, setFontSize, toggleLineNumbers } = useThemeStore()
+  const toast = useToast()
   const [isSharing, setIsSharing] = useState(false)
   const [fontSizeInput, setFontSizeInput] = useState(fontSize.toString())
   const [isCopied, setIsCopied] = useState(false)
@@ -24,7 +26,7 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
 
   const handleShare = async () => {
     if (!content.trim()) {
-      alert('Please add some content before sharing')
+      toast.warning('Please add some content before sharing')
       return
     }
 
@@ -32,21 +34,17 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
 
     try {
       if (documentId) {
-        // Document already exists, copy URL to clipboard
         const url = `${window.location.origin}/edit/${documentId}`
         await navigator.clipboard.writeText(url)
-        alert('Document link copied to clipboard!')
+        toast.success('Document link copied to clipboard!')
       } else {
-        // Create new document
         const response = await documentApi.createDocument(content)
         const url = `${window.location.origin}/edit/${response.share_id}`
         
-        // Update URL
         window.history.replaceState(null, '', `/edit/${response.share_id}`)
         
-        // Copy to clipboard
         await navigator.clipboard.writeText(url)
-        alert('Document created and link copied to clipboard!')
+        toast.success('Document created and link copied to clipboard!')
       }
     } catch (error: any) {
       console.error('Failed to share document:', error)
@@ -76,7 +74,7 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
         errorMessage = `Unexpected error: ${error.message || 'Unknown error'}`
       }
       
-      alert(errorMessage)
+      toast.error(errorMessage)
     } finally {
       setIsSharing(false)
     }
@@ -98,12 +96,13 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
     try {
       await navigator.clipboard.writeText(content)
       setIsCopied(true)
+      toast.success('Content copied to clipboard!')
       setTimeout(() => {
         setIsCopied(false)
       }, 2000)
     } catch (error) {
       console.error('Failed to copy content:', error)
-      alert('Failed to copy content to clipboard')
+      toast.error('Failed to copy content to clipboard')
     }
   }
 
