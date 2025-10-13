@@ -161,6 +161,25 @@
   cursor: not-allowed;
 }
 
+.new-document-button {
+  width: 100%;
+  padding: 10px 16px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-secondary);
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 8px;
+}
+
+.new-document-button:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border-tertiary);
+}
+
 .last-saved {
   padding: 8px 12px;
   background: var(--bg-tertiary);

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useDocumentStore } from '../lib/store/documentStore'
 import { useThemeStore } from '../lib/store/themeStore'
 import { documentApi } from '../lib/api/documentApi'
@@ -10,7 +11,8 @@ interface SidebarProps {
 }
 
 export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
-  const { content, documentId, lastSavedAt } = useDocumentStore()
+  const navigate = useNavigate()
+  const { content, documentId, lastSavedAt, setContent, setDocumentId } = useDocumentStore()
   const { isDarkMode, fontSize, showLineNumbers, toggleTheme, setFontSize, toggleLineNumbers } = useThemeStore()
   const [isSharing, setIsSharing] = useState(false)
   const [fontSizeInput, setFontSizeInput] = useState(fontSize.toString())
@@ -105,6 +107,12 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
     }
   }
 
+  const handleCreateNew = () => {
+    setContent('')
+    setDocumentId(null)
+    navigate('/')
+  }
+
   const formatLastSaved = (date: Date | null) => {
     if (!date) return 'Never'
     const now = new Date()
@@ -192,6 +200,12 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
               disabled={isSharing || !content.trim()}
             >
               {isSharing ? 'Sharing...' : (documentId ? 'Copy Link' : 'Save & Share')}
+            </button>
+            <button 
+              className="new-document-button"
+              onClick={handleCreateNew}
+            >
+              New Document
             </button>
           </div>
           
