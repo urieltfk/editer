@@ -55,7 +55,8 @@ class TestDocumentEndpoints:
             share_id="abc123def",
             content="This is a test document",
             created_at=datetime.now(UTC),
-            updated_at=datetime.now(UTC)
+            updated_at=datetime.now(UTC),
+            schema_version=1
         )
         mock_create.return_value = mock_response
         
@@ -86,7 +87,8 @@ class TestDocumentEndpoints:
             share_id="abc123def",
             content="This is a test document",
             created_at=datetime.now(UTC),
-            updated_at=datetime.now(UTC)
+            updated_at=datetime.now(UTC),
+            schema_version=1
         )
         mock_get.return_value = mock_response
         
@@ -124,7 +126,8 @@ class TestDocumentEndpoints:
             share_id="abc123def",
             content="This is updated content",
             created_at=datetime.now(UTC),
-            updated_at=datetime.now(UTC)
+            updated_at=datetime.now(UTC),
+            schema_version=1
         )
         mock_update.return_value = mock_response
         

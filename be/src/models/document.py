@@ -60,6 +60,7 @@ class Document(BeanieDocument):
     content: str = Field(default="", description="Document content")
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    schema_version: int = Field(default=1, description="Schema version for migrations")
     
     class Settings:
         name = "documents"
