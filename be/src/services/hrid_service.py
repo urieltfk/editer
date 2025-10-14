@@ -47,15 +47,16 @@ class HRIDService:
         Generate a new human-readable ID.
         
         Returns:
-            str: A human-readable ID (e.g., "abc123def")
+            str: A URL-safe human-readable ID (e.g., "abc123def")
         """
         try:
             if self._hrid is None:
                 self._initialize_hrid()
             
             hrid_value = self._hrid.generate()
-            logger.debug(f"Generated HRID: {hrid_value}")
-            return hrid_value
+            url_safe_hrid = hrid_value.replace(' ', '-')
+            logger.debug(f"Generated HRID: {url_safe_hrid}")
+            return url_safe_hrid
             
         except Exception as e:
             logger.error(f"Failed to generate HRID: {e}")
