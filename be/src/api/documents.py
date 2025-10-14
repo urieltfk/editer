@@ -1,15 +1,19 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 import logging
 
 from ..models.document import DocumentCreate, DocumentUpdate, DocumentResponse
-from ..services.document_service import document_service
+from ..services.document_service import DocumentService
+from src.services.document_service import get_document_service
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
 @router.post("/documents", response_model=DocumentResponse, status_code=status.HTTP_201_CREATED)
-async def create_document(document: DocumentCreate):
+async def create_document(
+    document: DocumentCreate,
+    document_service: DocumentService = Depends(get_document_service)
+):
     """Create a new document with auto-generated share_id."""
     try:
         result = await document_service.create_document(document)
@@ -36,7 +40,10 @@ async def create_document(document: DocumentCreate):
 
 
 @router.get("/documents/{share_id}", response_model=DocumentResponse)
-async def get_document(share_id: str):
+async def get_document(
+    share_id: str,
+    document_service: DocumentService = Depends(get_document_service)
+):
     """Retrieve a document by share_id."""
     try:
         result = await document_service.get_document(share_id)
@@ -64,7 +71,11 @@ async def get_document(share_id: str):
 
 
 @router.put("/documents/{share_id}", response_model=DocumentResponse)
-async def update_document(share_id: str, document: DocumentUpdate):
+async def update_document(
+    share_id: str,
+    document: DocumentUpdate,
+    document_service: DocumentService = Depends(get_document_service)
+):
     """Update a document by share_id."""
     try:
         result = await document_service.update_document(share_id, document)

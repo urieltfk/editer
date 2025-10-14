@@ -5,7 +5,7 @@ Tests human-readable ID generation functionality.
 import pytest
 from unittest.mock import patch, MagicMock
 
-from src.services.hrid_service import HRIDService, generate_hrid, get_hrid_service
+from src.services.hrid_service import HRIDService, generate_hrid, get_hrid_generator
 
 
 class TestHRIDServiceInitialization:
@@ -25,9 +25,9 @@ class TestHRIDServiceInitialization:
         assert service._hrid is not None
     
     def test_get_hrid_service_returns_singleton(self):
-        """Test that get_hrid_service returns the global instance."""
-        service1 = get_hrid_service()
-        service2 = get_hrid_service()
+        """Test that get_hrid_generator returns the global instance."""
+        service1 = get_hrid_generator()
+        service2 = get_hrid_generator()
         
         assert service1 is service2
     

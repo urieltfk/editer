@@ -6,6 +6,7 @@ import logging
 from typing import Optional
 from hrid import HRID
 from ..settings import settings
+from ..protocols.hrid_protocol import HRIDGeneratorProtocol
 
 logger = logging.getLogger(__name__)
 
@@ -107,17 +108,6 @@ class HRIDService:
 # Global HRID service instance
 hrid_service = HRIDService()
 
-
-def get_hrid_service() -> HRIDService:
-    """
-    Get the global HRID service instance.
-    
-    Returns:
-        HRIDService: The singleton HRID service instance
-    """
-    return hrid_service
-
-
 def generate_hrid() -> str:
     """
     Convenience function to generate a single HRID.
@@ -126,3 +116,12 @@ def generate_hrid() -> str:
         str: A human-readable ID
     """
     return hrid_service.generate_id()
+
+def get_hrid_generator() -> HRIDGeneratorProtocol:
+    """
+    Get the HRID generator instance.
+    
+    Returns:
+        HRIDGeneratorProtocol: HRID generator service
+    """
+    return hrid_service
