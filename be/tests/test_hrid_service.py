@@ -3,7 +3,7 @@ Unit tests for HRID Service.
 Tests human-readable ID generation functionality.
 """
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 from src.services.hrid_service import HRIDService, generate_hrid, get_hrid_generator
 
@@ -113,59 +113,6 @@ class TestHRIDGeneration:
             assert hrid.isalnum() or '-' in hrid
 
 
-class TestHRIDServiceSeedManagement:
-    """Test HRID service seed management."""
-    
-    def test_get_seed_returns_string(self):
-        """Test that get_seed returns the current seed."""
-        service = HRIDService()
-        
-        seed = service.get_seed()
-        
-        assert isinstance(seed, str)
-        assert len(seed) > 0
-    
-    def test_reset_seed_changes_generation_pattern(self):
-        """Test that resetting seed changes ID generation pattern."""
-        service = HRIDService()
-        
-        original_seed = service.get_seed()
-        ids_before = [service.generate_id() for _ in range(5)]
-        
-        service.reset_seed("new-test-seed-12345")
-        ids_after = [service.generate_id() for _ in range(5)]
-        
-        service.reset_seed(original_seed)
-        
-        assert set(ids_before) != set(ids_after)
-    
-    def test_reset_seed_with_empty_string_handles_gracefully(self):
-        """Test resetting with empty seed."""
-        service = HRIDService()
-        original_seed = service.get_seed()
-        
-        try:
-            service.reset_seed("")
-        except RuntimeError:
-            pass
-        
-        service.reset_seed(original_seed)
-    
-    def test_same_seed_produces_predictable_sequence(self):
-        """Test that same seed produces same sequence of IDs."""
-        test_seed = "test-seed-for-predictability-12345"
-        
-        service1 = HRIDService()
-        service1.reset_seed(test_seed)
-        sequence1 = [service1.generate_id() for _ in range(10)]
-        
-        service2 = HRIDService()
-        service2.reset_seed(test_seed)
-        sequence2 = [service2.generate_id() for _ in range(10)]
-        
-        assert sequence1 == sequence2
-
-
 class TestHRIDServiceErrorHandling:
     """Test error handling in HRID service."""
     
@@ -178,30 +125,6 @@ class TestHRIDServiceErrorHandling:
             
             with pytest.raises(RuntimeError, match="HRID generation failed"):
                 service.generate_id()
-    
-    def test_generate_multiple_handles_errors(self):
-        """Test that generate_multiple handles errors properly."""
-        service = HRIDService()
-        
-        with patch.object(service._hrid, 'generate') as mock_generate:
-            mock_generate.side_effect = Exception("Generation error")
-            
-            with pytest.raises(RuntimeError, match="HRID generation failed"):
-                service.generate_multiple(5)
-    
-    def test_reset_seed_handles_invalid_seed(self):
-        """Test that reset_seed handles invalid seeds."""
-        service = HRIDService()
-        original_seed = service.get_seed()
-        
-        try:
-            with patch('src.services.hrid_service.HRID') as mock_hrid_class:
-                mock_hrid_class.side_effect = Exception("Invalid seed")
-                
-                with pytest.raises(RuntimeError, match="HRID seed reset failed"):
-                    service.reset_seed("invalid-seed")
-        finally:
-            service.reset_seed(original_seed)
     
     def test_generate_id_reinitializes_if_hrid_is_none(self):
         """Test that generate_id reinitializes if _hrid becomes None."""

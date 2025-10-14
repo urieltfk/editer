@@ -5,8 +5,8 @@ HRID Service - Singleton for generating human-readable IDs across the applicatio
 import logging
 from typing import Optional
 from hrid import HRID
-from ..settings import settings
-from ..protocols.hrid_protocol import HRIDGeneratorProtocol
+from src.protocols.hrid_protocol import HRIDGeneratorProtocol
+from uuid import uuid4
 
 logger = logging.getLogger(__name__)
 
@@ -35,8 +35,9 @@ class HRIDService:
     def _initialize_hrid(self) -> None:
         """Initialize HRID with the configured seed."""
         try:
-            self._hrid = HRID(seed=settings.hrid_seed)
-            logger.info(f"HRID service initialized with seed: {settings.hrid_seed[:10]}...")
+            seed = str(uuid4())
+            self._hrid = HRID(seed=seed)
+            logger.info(f"HRID service initialized with seed: {seed[:10]}...")
         except Exception as e:
             logger.error(f"Failed to initialize HRID service: {e}")
             raise RuntimeError(f"HRID initialization failed: {e}")
@@ -84,25 +85,6 @@ class HRIDService:
         except Exception as e:
             logger.error(f"Failed to generate multiple HRIDs: {e}")
             raise RuntimeError(f"HRID generation failed: {e}")
-    
-    def get_seed(self) -> str:
-        """Get the current HRID seed."""
-        return settings.hrid_seed
-    
-    def reset_seed(self, new_seed: str) -> None:
-        """
-        Reset HRID with a new seed.
-        Note: This will change the ID generation pattern.
-        
-        Args:
-            new_seed: New seed for HRID generation
-        """
-        try:
-            self._hrid = HRID(seed=new_seed)
-            logger.info(f"HRID seed reset to: {new_seed[:10]}...")
-        except Exception as e:
-            logger.error(f"Failed to reset HRID seed: {e}")
-            raise RuntimeError(f"HRID seed reset failed: {e}")
 
 
 # Global HRID service instance
