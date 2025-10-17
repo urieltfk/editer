@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, field_validator
-from beanie import Document as BeanieDocument
+from beanie import Document as BeanieDocument, Indexed
 from typing import Optional
 from datetime import datetime, UTC
 from ..services.hrid_service import generate_hrid
@@ -56,7 +56,7 @@ class Document(BeanieDocument):
     MongoDB will auto-generate the _id field (ObjectId/UUID).
     """
     
-    share_id: str = Field(..., description="Human-readable ID for sharing and public access")
+    share_id: Indexed(str, unique=True) = Field(..., description="Human-readable ID for sharing and public access")
     content: str = Field(default="", description="Document content")
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
@@ -65,10 +65,25 @@ class Document(BeanieDocument):
     class Settings:
         name = "documents"
         indexes = [
-            "share_id",  # Index for fast lookups
+            [("share_id", 1)],  # Unique index for share_id
         ]
+    
+    @field_validator('share_id')
+    @classmethod
+    def validate_share_id(cls, v):
+        """Validate that share_id is a string without spaces."""
+        if not isinstance(v, str):
+            raise ValueError('Share ID must be a string')
+        if ' ' in v:
+            raise ValueError('Share ID cannot contain spaces')
+        if not v.strip():
+            raise ValueError('Share ID cannot be empty')
+        return v.strip()
     
     @staticmethod
     def generate_share_id() -> str:
         """Generate a human-readable share ID using HRID service."""
         return generate_hrid()
+    
+    
+
