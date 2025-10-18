@@ -1,42 +1,43 @@
 import { useEffect, useRef } from 'react'
 import { useDocumentStore } from '../store/documentStore'
 import { documentApi } from '../api/documentApi'
+import { useToast } from './useToast'
 
 export const useAutosave = () => {
   const {
     content,
-    lastSavedContent,
     isSaving,
     documentId,
-    setLastSavedContent,
+    isTemporaryDocument,
+    hasUnsavedChanges,
     setIsSaving,
     setDocumentId,
-    setLastSavedAt
+    setLastSavedAt,
+    setHasUnsavedChanges
   } = useDocumentStore()
 
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const toast = useToast()
+  const timeoutRef = useRef<number | null>(null)
 
   const saveDocument = async (contentToSave: string) => {
-    if (contentToSave === lastSavedContent || isSaving) {
+    if (isSaving) {
       return
     }
 
     setIsSaving(true)
 
     try {
-      if (documentId) {
-        // Update existing document
+      const loadingToastId = toast.loading('Saving...')
+      if (documentId && !isTemporaryDocument) {
         await documentApi.updateDocument(documentId, contentToSave)
-      } else {
-        // Create new document
-        const response = await documentApi.createDocument(contentToSave)
-        setDocumentId(response.share_id)
-        // Update URL with new document ID
-        window.history.replaceState(null, '', `/edit/${response.share_id}`)
+        setLastSavedAt(new Date())
+        setHasUnsavedChanges(false)
+      } else if (isTemporaryDocument) {
+        setLastSavedAt(new Date())
+        setHasUnsavedChanges(false)
       }
-
-      setLastSavedContent(contentToSave)
-      setLastSavedAt(new Date())
+      toast.dismiss(loadingToastId)
+      toast.success(`Saved ${isTemporaryDocument ? 'locally' : 'to cloud'}`)
     } catch (error: any) {
       console.error('Failed to save document:', error)
       
@@ -65,6 +66,51 @@ export const useAutosave = () => {
         errorMessage = `Unexpected error: ${error.message || 'Unknown error'}`
       }
       
+      toast.error(errorMessage)
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  // Create online document from temporary document
+  const createOnlineDocument = async () => {
+    if (isSaving) {
+      return
+    }
+
+    setIsSaving(true)
+
+    try {
+      const response = await documentApi.createDocument(content)
+      setDocumentId(response.share_id)
+      setLastSavedAt(new Date())
+      setHasUnsavedChanges(false)
+      // Update URL with new document ID
+      window.history.replaceState(null, '', `/edit/${response.share_id}`)
+    } catch (error: any) {
+      console.error('Failed to create online document:', error)
+      
+      let errorMessage = 'Failed to create online document. Please try again.'
+      
+      if (error.response) {
+        const status = error.response.status
+        const statusText = error.response.statusText
+        
+        if (status === 400) {
+          errorMessage = 'Invalid document data. Please check your content.'
+        } else if (status === 500) {
+          errorMessage = 'Server error. Please try again later.'
+        } else {
+          errorMessage = `Server error (${status}): ${statusText}`
+        }
+      } else if (error.request) {
+        errorMessage = 'Network error. Please check your connection and try again.'
+      } else if (error.code === 'ECONNABORTED') {
+        errorMessage = 'Request timeout. Please try again.'
+      } else {
+        errorMessage = `Unexpected error: ${error.message || 'Unknown error'}`
+      }
+      
       alert(errorMessage)
     } finally {
       setIsSaving(false)
@@ -73,7 +119,7 @@ export const useAutosave = () => {
 
   // Manual save function with debouncing
   const manualSave = async () => {
-    if (content === lastSavedContent || isSaving) {
+    if (!hasUnsavedChanges || isSaving) {
       return
     }
 
@@ -88,21 +134,16 @@ export const useAutosave = () => {
     }, 700)
   }
 
-  // Auto save for existing documents
+  // Auto save for documents with changes
   useEffect(() => {
-    // Only auto-save if we have an existing document ID
-    if (!documentId) {
+    // Only auto-save if there are unsaved changes
+    if (!hasUnsavedChanges || isSaving) {
       return
     }
 
     // Clear existing timeout
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current)
-    }
-
-    // Don't save if content hasn't changed
-    if (content === lastSavedContent) {
-      return
     }
 
     // Set new timeout for debounced save
@@ -116,11 +157,13 @@ export const useAutosave = () => {
         clearTimeout(timeoutRef.current)
       }
     }
-  }, [content, lastSavedContent, documentId])
+  }, [content, hasUnsavedChanges, isSaving])
 
   return {
     isSaving,
     lastSavedAt: useDocumentStore.getState().lastSavedAt,
-    manualSave
+    hasUnsavedChanges,
+    manualSave,
+    createOnlineDocument
   }
 }

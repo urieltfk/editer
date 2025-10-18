@@ -3,14 +3,15 @@ import { useDocumentStore } from '../store/documentStore'
 import { documentApi } from '../api/documentApi'
 
 export const useDocumentLoader = (documentId: string | null) => {
-  const { setContent, setLastSavedContent, setDocumentId, setLastSavedAt, reset } = useDocumentStore()
+  const { loadSavedDocument, createTemporaryDocument, reset } = useDocumentStore()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const loadDocument = async () => {
       if (!documentId) {
-        // No document ID, load from local storage (handled by Zustand persist)
+        // No document ID, create a temporary document
+        createTemporaryDocument()
         return
       }
 
@@ -19,10 +20,12 @@ export const useDocumentLoader = (documentId: string | null) => {
 
       try {
         const response = await documentApi.getDocument(documentId)
-        setContent(response.content)
-        setLastSavedContent(response.content)
-        setDocumentId(response.share_id)
-        setLastSavedAt(new Date(response.updated_at))
+        // Load saved document with proper state management
+        loadSavedDocument(
+          response.content,
+          response.share_id,
+          new Date(response.updated_at)
+        )
       } catch (error: any) {
         console.error('Failed to load document:', error)
         
@@ -48,15 +51,15 @@ export const useDocumentLoader = (documentId: string | null) => {
         }
         
         setError(errorMessage)
-        // Reset to local content on error
-        reset()
+        // Reset to temporary document on error
+        createTemporaryDocument()
       } finally {
         setIsLoading(false)
       }
     }
 
     loadDocument()
-  }, [documentId, setContent, setLastSavedContent, setDocumentId, setLastSavedAt, reset])
+  }, [documentId, loadSavedDocument, createTemporaryDocument])
 
   return { isLoading, error }
 }

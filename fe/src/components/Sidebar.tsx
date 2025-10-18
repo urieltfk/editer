@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { Tooltip } from 'react-tooltip'
 import { useDocumentStore } from '../lib/store/documentStore'
 import { useThemeStore } from '../lib/store/themeStore'
-import { documentApi } from '../lib/api/documentApi'
 import { useToast } from '../lib/hooks/useToast'
+import { useAutosave } from '../lib/hooks/useAutosave'
 import './Sidebar.css'
 
 interface SidebarProps {
@@ -15,6 +15,7 @@ interface SidebarProps {
 export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
   const navigate = useNavigate()
   const { content, documentId, lastSavedAt, setContent, setDocumentId } = useDocumentStore()
+  const { createOnlineDocument } = useAutosave()
   const { isDarkMode, fontSize, showLineNumbers, toggleTheme, setFontSize, toggleLineNumbers } = useThemeStore()
   const toast = useToast()
   const [isSharing, setIsSharing] = useState(false)
@@ -39,10 +40,9 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
         await navigator.clipboard.writeText(url)
         toast.success('Document link copied to clipboard!')
       } else {
-        const response = await documentApi.createDocument(content)
-        const url = `${window.location.origin}/edit/${response.share_id}`
-        
-        window.history.replaceState(null, '', `/edit/${response.share_id}`)
+        // Use the new createOnlineDocument function
+        await createOnlineDocument()
+        const url = `${window.location.origin}/edit/${documentId}`
         
         await navigator.clipboard.writeText(url)
         toast.success('Document created and link copied to clipboard!')
