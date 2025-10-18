@@ -15,6 +15,8 @@ const ErrorPage = () => {
     return (
         <div id="error-page">
             <p>The website has encountered an error.</p>
+            <p>Try to refresh the page, clean cache or try again later.</p>
+            <p>If the problem persists, please contact the maintainer.</p>
             <Link to="/">Go back to editor</Link>
         </div>
     );
