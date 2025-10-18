@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Tooltip } from 'react-tooltip'
 import { useDocumentStore } from '../lib/store/documentStore'
 import { useThemeStore } from '../lib/store/themeStore'
 import { documentApi } from '../lib/api/documentApi'
@@ -130,6 +131,7 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
     <>
       {/* Toggle Arrow Button */}
       <button 
+        id="sidebar-toggle-tooltip"
         className={`sidebar-toggle ${isOpen ? 'open' : ''}`}
         onClick={onToggle}
         aria-label="Toggle sidebar"
@@ -139,6 +141,7 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
 
       {/* Copy Button */}
       <button 
+        id="copy-button-tooltip"
         className={`copy-button ${isOpen ? 'open' : ''} ${!content.trim() ? 'disabled' : ''}`}
         onClick={handleCopy}
         disabled={!content.trim()}
@@ -147,6 +150,15 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
         <span className="copy-icon">
           {isCopied ? '✓' : <img src="/clipboard.svg" alt="Copy" className="clipboard-icon" />}
         </span>
+      </button>
+
+      {/* Info Button */}
+      <button 
+        id="info-button-tooltip"
+        className={`info-button ${isOpen ? 'open' : ''}`}
+        aria-label="Privacy information"
+      >
+        <span className="info-icon">i</span>
       </button>
 
       {/* Sidebar Content */}
@@ -216,6 +228,29 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
           </div>
         </div>
       </div>
+
+      {/* Tooltips */}
+      <Tooltip
+        anchorId="sidebar-toggle-tooltip"
+        content={isOpen ? "Close sidebar" : "Open sidebar"}
+        place="right"
+        className="custom-tooltip"
+      />
+      
+      <Tooltip
+        anchorId="copy-button-tooltip"
+        content={!content.trim() ? "Add content to copy" : "Copy content to clipboard"}
+        place="right"
+        className="custom-tooltip"
+      />
+      
+      <Tooltip
+        anchorId="info-button-tooltip"
+        content="Privacy Notice: Your data is not kept private and documents are automatically deleted after 30 days"
+        place="right"
+        className="custom-tooltip info-tooltip"
+        style={{ maxWidth: '300px' }}
+      />
     </>
   )
 }
