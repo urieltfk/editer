@@ -226,6 +226,12 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
               {formatLastSaved(lastSavedAt)}
             </div>
           </div>
+          
+          <div className="sidebar-section">
+            <a href="/about" className="about-link">
+              more about editer
+            </a>
+          </div>
         </div>
       </div>
 
