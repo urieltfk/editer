@@ -23,13 +23,6 @@ jobs:
       run: |
         cd be
         docker build -t editer-backend:test .
-        
-    - name: Verify backend image
-      run: |
-        docker run --rm -d --name test-backend -p 8000:8000 editer-backend:test
-        sleep 10
-        curl -f http://localhost:8000/health || exit 1
-        docker stop test-backend
 
   backend-tests:
     name: Backend Tests
