@@ -1,0 +1,113 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  docker-build:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Build backend Docker image
+      run: |
+        cd be
+        docker build -t editer-backend:test .
+        
+    - name: Verify backend image
+      run: |
+        docker run --rm -d --name test-backend -p 8000:8000 editer-backend:test
+        sleep 10
+        curl -f http://localhost:8000/health || exit 1
+        docker stop test-backend
+
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    needs: docker-build
+    
+    services:
+      mongodb:
+        image: mongo:7.0
+        ports:
+          - 27017:27017
+        env:
+          MONGO_INITDB_DATABASE: test_editer
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          
+    - name: Install dependencies
+      run: |
+        cd be
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Install MongoDB shell
+      run: |
+        curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor
+        echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+        sudo apt-get update
+        sudo apt-get install -y mongodb-mongosh
+        
+    - name: Wait for MongoDB
+      run: |
+        timeout 60 bash -c 'until mongosh --eval "db.adminCommand(\"ping\")" > /dev/null 2>&1; do sleep 2; done'
+        
+    - name: Run backend tests
+      run: |
+        cd be
+        python -m pytest tests/ -v --tb=short
+      env:
+        MONGODB_URL: mongodb://localhost:27017
+        DATABASE_NAME: test_editer
+        DEBUG: "False"
+        HRID_SEED: "test-seed-for-testing-123"
+        API_HOST: "0.0.0.0"
+        API_PORT: "8000"
+        
+    - name: Test Docker container with MongoDB
+      run: |
+        cd be
+        docker build -t editer-backend:test .
+        docker run --rm -d --name test-backend-with-db \
+          --network host \
+          -e MONGODB_URL=mongodb://localhost:27017 \
+          -e DATABASE_NAME=test_editer \
+          -e DEBUG=False \
+          -e HRID_SEED=test-seed-for-testing-123 \
+          -e API_HOST=0.0.0.0 \
+          -e API_PORT=8000 \
+          editer-backend:test
+        sleep 15
+        curl -f http://localhost:8000/health || exit 1
+        docker stop test-backend-with-db
