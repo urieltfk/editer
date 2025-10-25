@@ -64,9 +64,6 @@ class Document(BeanieDocument):
     
     class Settings:
         name = "documents"
-        indexes = [
-            [("share_id", 1)],  # Unique index for share_id
-        ]
     
     @field_validator('share_id')
     @classmethod
